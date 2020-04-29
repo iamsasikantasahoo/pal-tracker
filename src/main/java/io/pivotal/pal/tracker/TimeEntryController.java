@@ -26,9 +26,7 @@ public class TimeEntryController {
         timeEntrySummary = meterRegistry.summary("timeEntry.summary");
         actionCounter = meterRegistry.counter("timeEntry.actionCounter");
     }
-   /* public TimeEntryController(TimeEntryRepository timeEntryRepository) {
-        this.timeEntryRepository=timeEntryRepository;
-    }*/
+
     @PostMapping()
     public ResponseEntity create(@RequestBody TimeEntry timeEntryToCreate) {
 
@@ -39,39 +37,41 @@ public class TimeEntryController {
         return new ResponseEntity<>(timeEntry, HttpStatus.CREATED);
 
     }
-@GetMapping("{timeEntryId}")
+
+    @GetMapping("{timeEntryId}")
     public ResponseEntity read(@PathVariable long timeEntryId) {
-    TimeEntry timeEntry = timeEntryRepository.find(timeEntryId);
-    if(timeEntry==null) {
-        return new ResponseEntity<>(timeEntry, HttpStatus.NOT_FOUND);
+        TimeEntry timeEntry = timeEntryRepository.find(timeEntryId);
+        if (timeEntry == null) {
+            return new ResponseEntity<>(timeEntry, HttpStatus.NOT_FOUND);
+        } else {
+            actionCounter.increment();
+            return new ResponseEntity<>(timeEntry, HttpStatus.OK);
+        }
     }
-    else {
-        actionCounter.increment();
-        return new ResponseEntity<>(timeEntry, HttpStatus.OK);
-    }
-    }
-@GetMapping()
+
+    @GetMapping()
     public ResponseEntity list() {
-    List<TimeEntry> timeEntryList = timeEntryRepository.list();
-    actionCounter.increment();
-    return new ResponseEntity<>(timeEntryList, HttpStatus.OK);
+        List<TimeEntry> timeEntryList = timeEntryRepository.list();
+        actionCounter.increment();
+        return new ResponseEntity<>(timeEntryList, HttpStatus.OK);
 
     }
+
     @PutMapping("{timeEntryId}")
     public ResponseEntity update(@PathVariable long timeEntryId, @RequestBody TimeEntry expected) {
         TimeEntry timeEntry = timeEntryRepository.update(timeEntryId, expected);
-        if(timeEntry!=null) {
+        if (timeEntry != null) {
             actionCounter.increment();
             return new ResponseEntity<>(timeEntry, HttpStatus.OK);
-        }else{
+        } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("{timeEntryId}")
     public ResponseEntity delete(@PathVariable long timeEntryId) {
-         timeEntryRepository.delete(timeEntryId);
-         actionCounter.increment();
+        timeEntryRepository.delete(timeEntryId);
+        actionCounter.increment();
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
